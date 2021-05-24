@@ -1,0 +1,41 @@
+# https://github.com/GabrielSr13/Trab-2.git
+
+from numba import cuda
+
+import numpy
+
+from numpy import *
+threads_per_block = 16
+tam = 3
+@cuda.jit
+def my_kernel(matriz_a, matriz_b, matriz_c, width):
+    # Thread id in a 1D block
+    tx = cuda.threadIdx.x
+
+    ty = cuda.blockIdx.x
+
+    x = 0
+    soma = 0
+    if tx < width and ty < width:
+      while x < width:
+        soma += matriz_a[tx][x] * matriz_b[x][ty]
+        x += 1
+        matriz_c[tx][ty] = soma
+
+# número de blocos por grid
+blocks_per_grid = ( 2 + (threads_per_block - 1) )
+matriz_a = random.randint(1, 11, size=(tam, tam))
+
+matriz_b = random.randint(1, 11, size=(tam, tam))
+
+a = numpy.array(matriz_a)
+b = numpy.array(matriz_b)
+
+matriz_c =  [ [0, 0, 0], [0, 0, 0], [0, 0, 0]]
+c = numpy.array(matriz_c)
+
+# iniciando o kernel
+my_kernel[blocks_per_grid, threads_per_block](a, b, c, tam)
+
+print(c)
+
